@@ -87,32 +87,37 @@ if (!requireNamespace("tm", quietly = TRUE)) {
 # Load required packages
 library(dplyr)
 library(ggplot2)
+# Load necessary libraries
+#install.packages("plotly")
+
+library(plotly)
+library(dplyr)
 
 
 # Summary statistics
 summary(result)
 
-# Data visualization
+
 # Boxplot of 'total_claim_amount'
-ggplot(result, aes(x = "", y = total_claim_amount)) +
-  geom_boxplot(fill = "skyblue", color = "black") +
-  labs(title = "Boxplot of Total Claim Amount",
-       y = "Total Claim Amount", x = "") 
+boxplot_total_claim_amount <- ggplotly(
+  ggplot(result, aes(x = "", y = total_claim_amount)) +
+    geom_boxplot(fill = "skyblue", color = "black") +
+    labs(title = "Boxplot of Total Claim Amount", y = "Total Claim Amount", x = "")
+)
 
 # Boxplot of 'age' by 'fraud_reported'
-ggplot(result, aes(x = fraud_reported, y = age)) +
-  geom_boxplot(fill = "lightgreen") +
-  labs(title = "Age Distribution by Fraud Reported",
-       x = "Fraud Reported",
-       y = "Age")
+boxplot_age_fraud_reported <- ggplotly(
+  ggplot(result, aes(x = fraud_reported, y = age)) +
+    geom_boxplot(fill = "lightgreen") +
+    labs(title = "Age Distribution by Fraud Reported", x = "Fraud Reported", y = "Age")
+)
 
-# Scatterplot of 'total_claim_amount' vs 'policy_annual_premium'
-ggplot(result, aes(x = policy_annual_premium, y = total_claim_amount)) +
-  geom_point(color = "blue") +
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(title = "Total Claim Amount vs Policy Annual Premium",
-       x = "Policy Annual Premium",
-       y = "Total Claim Amount")
+# Analysis of Policy Characteristics - Boxplot (Annual Premium by Policy State)
+boxplot_plot <- ggplotly(ggplot(result, aes(x = policy_state, y = policy_annual_premium)) + geom_boxplot()) %>% layout(title = "Annual Premium by Policy State")
+
+boxplot_total_claim_amount
+boxplot_age_fraud_reported
+boxplot_plot
 
 # Handling missing values
 # Check for missing values
@@ -140,55 +145,54 @@ dataset <- result
 library(ggplot2)
 library(dplyr)
 
-# Analysis of Incident Types - Bar plot
-incident_type_counts <- table(dataset$incident_type)
-barplot(incident_type_counts, main = "Incident Type Distribution", xlab = "Incident Type", ylab = "Count", col = "skyblue")
-
-# Analysis of Collision Types - Pie chart
-collision_type_counts <- table(dataset$collision_type)
-pie(collision_type_counts, main = "Collision Type Distribution", col = rainbow(length(collision_type_counts)), labels = names(collision_type_counts))
 
 # Analysis of Insured Occupations - Bar plot (Top 10 occupations)
 top_occupations <- head(sort(table(dataset$insured_occupation), decreasing = TRUE), 10)
-barplot(top_occupations, main = "Top 10 Insured Occupations", xlab = "Occupation", ylab = "Count", col = "lightgreen")
+barplot_plot <- plot_ly(x = names(top_occupations), y = top_occupations, type = "bar", marker = list(color = "lightgreen"))
+barplot_plot <- barplot_plot %>% layout(title = "Top 10 Insured Occupations", xaxis = list(title = "Occupation"), yaxis = list(title = "Count"))
 
-# Analysis of Policy Characteristics - Boxplot (Annual Premium by Policy State)
-ggplot(dataset, aes(x = policy_state, y = policy_annual_premium)) + geom_boxplot() + labs(title = "Annual Premium by Policy State")
 
 # Analysis of Claim Characteristics - Histogram (Total Claim Amount)
-ggplot(dataset, aes(x = total_claim_amount)) + geom_histogram(binwidth = 1000, fill = "lightblue", color = "black") + labs(title = "Distribution of Total Claim Amount")
+histogram_plot <- ggplotly(ggplot(dataset, aes(x = total_claim_amount)) + geom_histogram(binwidth = 1000, fill = "lightblue", color = "black")) %>% layout(title = "Distribution of Total Claim Amount")
 
 # Analysis of Demographic Data - Pie chart (Gender Distribution)
 gender_counts <- table(dataset$Gender)
+pie_plot_gender <- plot_ly(labels = names(gender_counts), values = gender_counts, type = "pie", marker = list(colors = c("pink", "lightblue")))
+pie_plot_gender <- pie_plot_gender %>% layout(title = "Gender Distribution")
 
-# Plot pie chart for gender distribution
-pie(gender_counts, 
-    main = "Gender Distribution", 
-    col = c("pink", "lightblue"),  # Specify colors for each category
-    labels = paste(names(gender_counts), ": ", gender_counts),  # Add count labels to the pie chart
-    cex = 0.8)  # Adjust label size if needed
-
-# Analysis of Vehicle Characteristics - Bar plot (Model Distribution)
-top_models <- head(sort(table(dataset$Model), decreasing = TRUE), 10)
-barplot(top_models, main = "Top 10 Vehicle Models", xlab = "Model", ylab = "Count", col = "lightpink")
 
 # Analysis of Fraud Cases - Pie chart
 fraud_counts <- table(dataset$fraud_reported)
+pie_plot_fraud <- plot_ly(labels = names(fraud_counts), values = fraud_counts, type = "pie", marker = list(colors = c("red", "lightgreen")))
+pie_plot_fraud <- pie_plot_fraud %>% layout(title = "Fraud Reported")
 
-# Plot pie chart for gender distribution
-pie(fraud_counts, 
-    main = "Fraud Reported", 
-    col = c("red", "lightgreen"),  # Specify colors for each category
-    labels = paste(names(fraud_counts), ": ", fraud_counts),  # Add count labels to the pie chart
-    cex = 0.8)  # Adjust label size if needed
+# Arrange plots
 
-# Temporal Analysis - Time series plot (Incidents Over Time)
-incidents_over_time <- table(as.Date(dataset$incident_date))
-plot(incidents_over_time, type = "o", col = "blue", xlab = "Date", ylab = "Incidents Count", main = "Incidents Over Time")
+barplot_plot
+boxplot_plot
+histogram_plot
+pie_plot_gender
+pie_plot_fraud
 
-# Geographical Analysis - Bar plot (Incident State Distribution)
-incident_state_counts <- table(dataset$incident_state)
-barplot(incident_state_counts, main = "Incident State Distribution", xlab = "State", ylab = "Count", col = "lightyellow")
+
+# Interactive Bar Plot of Incident Types
+
+incident_type_plot <- result %>%
+  count(incident_type) %>%
+  plot_ly(x = ~incident_type, y = ~n, type = 'bar') %>%
+  layout(title = "Distribution of Incident Types",
+         xaxis = list(title = "Incident Type"),
+         yaxis = list(title = "Count"))
+
+# Interactive Pie Chart of Incident Severity
+incident_severity_plot <- result %>%
+  count(incident_severity) %>%
+  plot_ly(labels = ~incident_severity, values = ~n, type = 'pie') %>%
+  layout(title = "Distribution of Incident Severity")
+
+# Display the plots
+incident_type_plot
+incident_severity_plot
 
 ```
 
@@ -404,7 +408,7 @@ The priority of incident types can be inferred based on their frequency in the d
 
 ## Geographical data analysis
 
-We conducted geoplotting to visualize the locations of incidents recorded in the insurance claim data. Leveraging the city and state information provided in the dataset, we approximated the latitude and longitude coordinates for each incident location. These coordinates were then utilized to pinpoint the exact locations of the incidents on a dynamic map. By employing the Leaflet library in R, we accurately marked each incident location on the map, providing a comprehensive geographical representation of the insurance claim data.
+We conducted geoplotting to visualize the locations of incidents recorded in the insurance claim data. Leveraging the city and state information provided in the dataset, we approximated the latitude and longitude coordinates for each incident location. These coordinates were then utilized to pinpoint the exact city of the incidents on a dynamic map. By employing the Leaflet library in R, we accurately marked each incident location on the map, providing a comprehensive geographical representation of the insurance claim data.
 
 ```{r}
 # Install and load ggmap package
@@ -441,7 +445,7 @@ geocoded <- geocoded %>%
 result_with_geo <- inner_join(result, geocoded, by = c("address" = "incident_address"), relationship =  "many-to-many")
 
 
-# View the resulting dataset
+# View the resulting data set
 head(result_with_geo)
 
 install.packages("leaflet")
@@ -462,3 +466,30 @@ map <- leaflet(data = result_with_geo) %>%
 map
 
 ```
+
+## Mermaid Code:
+
+```{mermaid}
+flowchart TB
+    subgraph "Car_Sales Dataset"
+        Car_Sales --> Merged_Dataset
+    end
+    subgraph "Insurance Dataset"
+        Insurance --> Merged_Dataset
+    end
+    subgraph "Review Dataset"
+        Review --> Merged_Dataset
+    end
+    Merged_Dataset --> Analysis
+
+```
+
+This Mermaid flowchart describes the merging of multiple datasets into one combined dataset and then the subsequent analysis performed on the merged dataset.
+
+1.  The "Car_Sales Dataset", "Insurance Dataset", and "Review Dataset" are represented as separate subgraphs, indicating the individual datasets.
+
+2.  Each dataset is connected to the "Merged_Dataset" node, signifying the merging of these datasets into one combined dataset.
+
+3.  Finally, the "Merged_Dataset" node is linked to the "Analysis" node, indicating that various analyses or operations are performed on the merged dataset.
+
+Overall, the flowchart provides a visual representation of the process of merging multiple datasets and performing analysis on the combined dataset.
