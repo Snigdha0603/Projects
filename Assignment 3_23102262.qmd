@@ -18,7 +18,7 @@ Loading the following dataset
 
 3.  Dataset including Reviews given by customers
 
-    Kaggle Link:
+    Kaggle Link:<https://www.kaggle.com/datasets/shreemunpranav/edmunds-car-review>
 
 ```{r}
 library(readxl)
@@ -296,10 +296,9 @@ sentiment_scores <- tokenized_data %>%
 # Display the sentiment scores
 head(sentiment_scores)
 
-library(ggplot2)
+library(plotly)
 
-# Create bar plot with Company and Model
-ggplot(data = sentiment_scores, aes(x = Company, y = sentiment_score, fill = Model)) +
+plotly_obj <- ggplot(data = sentiment_scores, aes(x = Company, y = sentiment_score, fill = Model)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Sentiment Analysis of Car Reviews",
        x = "Company",
@@ -307,6 +306,11 @@ ggplot(data = sentiment_scores, aes(x = Company, y = sentiment_score, fill = Mod
        fill = "Model") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+# Convert ggplot object to plotly
+plotly_obj <- ggplotly(plotly_obj)
+
+# Print the interactive plot
+print(plotly_obj)
 ```
 
 Here's an explanation of the output:
