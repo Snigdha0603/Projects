@@ -248,7 +248,13 @@ summary(glm_model)
 
 ```
 
-The output is from a generalized linear model (GLM) fitted to the data using the Gaussian family. Each row represents a predictor variable, with corresponding estimates, standard errors, t-values, and p-values. The estimates indicate the expected change in the response variable for a one-unit change in the predictor, holding other predictors constant. The t-values and associated p-values assess the significance of each predictor's effect on the response variable. Significance is determined based on the p-values, with smaller values indicating stronger evidence against the null hypothesis. Additionally, the null and residual deviance values provide insights into the goodness of fit of the model. Lower residual deviance values suggest a better fit, indicating that the model explains a larger proportion of the variability in the data. The Akaike Information Criterion (AIC) is used to compare the relative quality of different models, with lower values indicating better-fitting models. Finally, the number of Fisher Scoring iterations indicates the number of iterations required to fit the model. Overall, this output helps assess the significance of predictor variables and the overall fit of the GLM to the data..
+The output from the generalized linear model (GLM) reveals several significant predictors impacting the total claim amount. Notably, variables such as "capital.gains," "bodily_injuries," "insured_occupationcraft-repair," "insured_occupationprotective-serv," "insured_hobbiesboard-games," "insured_hobbiesmovies," and "insured_hobbiespaintball" show significant coefficients.
+
+Furthermore, the model's goodness of fit can be evaluated through the residual deviance, which indicates a substantial reduction from the null deviance. This reduction suggests that the model explains a considerable portion of the variability in the data.
+
+Despite this, it's important to note that some predictors, such as "incident_typeSingle Vehicle Collision" and "insured_sexMALE," while showing somewhat high p-values, may still have practical significance or contribute in conjunction with other variables.
+
+Overall, this GLM provides valuable insights into the factors influencing total claim amount, allowing for more informed decision-making in risk assessment and claims management within the insurance industry.
 
 ## Qualitative Analysis:
 
@@ -310,7 +316,9 @@ plotly_obj <- ggplot(data = sentiment_scores, aes(x = Company, y = sentiment_sco
 plotly_obj <- ggplotly(plotly_obj)
 
 # Print the interactive plot
-print(plotly_obj)
+plotly_obj
+
+
 ```
 
 Here's an explanation of the output:
